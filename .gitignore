@@ -1,0 +1,43 @@
+
+---
+
+# 📄 **.gitignore**
+
+```gitignore
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+*.log.*
+
+# Build
+dist/
+build/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Mac / Linux / Windows
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+
+# Others
+*.zip
