@@ -10,8 +10,24 @@ import userRoutes from "./routes/user.routes.js"
 
 const app = express()
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://aidex-ruby.vercel.app"
+]
+
 app.use(helmet())
-app.use(cors({ origin: process.env.CORS_ORIGIN || "*", credentials: false }))
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error("Not allowed by CORS"))
+      }
+    },
+    credentials: true,
+  })
+)
 app.use(express.json({ limit: "256kb" }))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static("public"))

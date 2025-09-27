@@ -6,17 +6,22 @@ import { Ticket } from "../models/ticket.model.js";
 export const initSocket = (httpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",  // allow all origins
+      origin: [
+        "http://localhost:5173",
+        "https://aidex-ruby.vercel.app"
+      ],
       methods: ["GET", "POST"],
-      credentials: true
-    }
+      credentials: true,
+    },
   });
 
   global.__io = io;
 
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth?.token || (socket.handshake.headers?.authorization || "").replace("Bearer ", "");
+      const token =
+        socket.handshake.auth?.token ||
+        (socket.handshake.headers?.authorization || "").replace("Bearer ", "");
       if (!token) return next(new Error("Authentication error: token required"));
       const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       const user = await User.findById(payload._id).select("-password");
@@ -44,7 +49,10 @@ export const initSocket = (httpServer) => {
         if (!ticket) ticket = await Ticket.findOne({ ticketId });
         if (!ticket) return socket.emit("error", { message: "Ticket not found" });
 
-        const isParticipant = ticket.customer.equals(user._id) || (ticket.assignedAgent && ticket.assignedAgent.equals(user._id)) || user.role === "Admin";
+        const isParticipant =
+          ticket.customer.equals(user._id) ||
+          (ticket.assignedAgent && ticket.assignedAgent.equals(user._id)) ||
+          user.role === "Admin";
         if (!isParticipant) return socket.emit("error", { message: "Not authorized for ticket" });
 
         socket.join(`ticket:${ticket._id}`);
